@@ -1,0 +1,2 @@
+# MinecraftAutoTAS
+Beat Minecraft automatically
