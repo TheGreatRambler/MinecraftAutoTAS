@@ -2,6 +2,7 @@ package com.thegreatrambler.baritonetas;
 
 import baritone.api.*;
 import baritone.api.pathing.goals.*;
+import baritone.api.utils.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +20,7 @@ import net.minecraft.util.text.*;
 public class TASCreator {
 	static final Minecraft minecraft = Minecraft.getInstance();
 
-	public final Block[] Woods = new Block[] {
+	public final List<Block> Woods = Arrays.asList(new Block[] {
 		Blocks.ACACIA_LOG,
 		Blocks.BIRCH_LOG,
 		Blocks.DARK_OAK_LOG,
@@ -32,17 +33,14 @@ public class TASCreator {
 		Blocks.STRIPPED_JUNGLE_WOOD,
 		Blocks.STRIPPED_OAK_WOOD,
 		Blocks.STRIPPED_SPRUCE_WOOD,
-	};
-	public final ArrayList<Block> WoodsList
-		= new ArrayList<>(Arrays.asList(Woods));
+	});
 
 	public TASCreator() { }
 
 	public void startNewTAS() {
 		minecraft.player.sendChatMessage("Starting TAS");
 
-		// Mine blocks to
 		BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().mine(
-			Woods);
+			2, new BlockOptionalMetaLookup(Woods));
 	}
 }

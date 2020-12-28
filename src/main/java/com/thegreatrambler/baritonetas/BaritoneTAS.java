@@ -1,37 +1,39 @@
 package com.thegreatrambler.baritonetas;
 
 import baritone.api.*;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.MessageArgument;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import baritone.api.behavior.IPathingBehavior;
+import baritone.api.pathing.calc.*;
+import baritone.api.pathing.path.*;
+import baritone.api.utils.*;
+import baritone.api.utils.input.Input;
+import com.mojang.brigadier.*;
+import com.mojang.brigadier.builder.*;
+import com.mojang.brigadier.exceptions.*;
+import java.util.*;
+import java.util.regex.*;
+import net.minecraft.client.*;
+import net.minecraft.command.*;
+import net.minecraft.command.arguments.*;
+import net.minecraft.entity.*;
+import net.minecraft.util.*;
+import net.minecraft.util.text.*;
 import net.minecraftforge.client.event.*;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.*;
 import net.minecraftforge.event.*;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent.*;
+import net.minecraftforge.eventbus.api.*;
+import net.minecraftforge.fml.*;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraftforge.fml.javafmlmod.*;
+import org.apache.logging.log4j.*;
 
 @Mod(BaritoneTAS.MODID)
 public final class BaritoneTAS {
+	private enum SpeedrunStates {
+		GET_WOOD,
+	}
+
 	public static final String MODID  = "baritonetas";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 
@@ -75,8 +77,29 @@ public final class BaritoneTAS {
 			Commands.literal("createtas").executes(command -> {
 				tasCreator.startNewTAS();
 
-				return 0;
+				return 1;
 			}));
+	}
+
+	@SubscribeEvent
+	public void onPlayerTick(PlayerTickEvent event) {
+		IPathingBehavior pathingBehavior = BaritoneAPI.getProvider()
+											   .getPrimaryBaritone()
+											   .getPathingBehavior();
+		IInputOverrideHandler inputOverrideHandler
+			= BaritoneAPI.getProvider()
+				  .getPrimaryBaritone()
+				  .getInputOverrideHandler();
+
+		IPath current = pathingBehavior.hasPath()
+							? pathingBehavior.getCurrent().getPath()
+							: null;
+
+		if(pathingBehavior.isPathing()) {
+			inputOverrideHandler.setInputForceState(Input.JUMP, true);
+		} else {
+			inputOverrideHandler.setInputForceState(Input.JUMP, false);
+		}
 	}
 
 	@SubscribeEvent
