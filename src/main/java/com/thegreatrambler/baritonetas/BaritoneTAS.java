@@ -1,22 +1,8 @@
 package com.thegreatrambler.baritonetas;
 
 import baritone.api.*;
-import baritone.api.behavior.IPathingBehavior;
-import baritone.api.pathing.calc.*;
-import baritone.api.pathing.path.*;
-import baritone.api.utils.*;
-import baritone.api.utils.input.Input;
-import com.mojang.brigadier.*;
-import com.mojang.brigadier.builder.*;
-import com.mojang.brigadier.exceptions.*;
-import java.util.*;
-import java.util.regex.*;
 import net.minecraft.client.*;
 import net.minecraft.command.*;
-import net.minecraft.command.arguments.*;
-import net.minecraft.entity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.text.*;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.event.*;
@@ -30,10 +16,6 @@ import org.apache.logging.log4j.*;
 
 @Mod(BaritoneTAS.MODID)
 public final class BaritoneTAS {
-	private enum SpeedrunStates {
-		GET_WOOD,
-	}
-
 	public static final String MODID  = "baritonetas";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 
@@ -82,23 +64,9 @@ public final class BaritoneTAS {
 	}
 
 	@SubscribeEvent
-	public void onPlayerTick(PlayerTickEvent event) {
-		IPathingBehavior pathingBehavior = BaritoneAPI.getProvider()
-											   .getPrimaryBaritone()
-											   .getPathingBehavior();
-		IInputOverrideHandler inputOverrideHandler
-			= BaritoneAPI.getProvider()
-				  .getPrimaryBaritone()
-				  .getInputOverrideHandler();
-
-		IPath current = pathingBehavior.hasPath()
-							? pathingBehavior.getCurrent().getPath()
-							: null;
-
-		if(pathingBehavior.isPathing()) {
-			inputOverrideHandler.setInputForceState(Input.JUMP, true);
-		} else {
-			inputOverrideHandler.setInputForceState(Input.JUMP, false);
+	public void onTick(WorldTickEvent event) {
+		if(event.phase == Phase.END) {
+			tasCreator.onTick(event);
 		}
 	}
 
